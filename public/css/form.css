@@ -82,6 +82,11 @@ label {
     font-weight: bold;
 }
 
+#inputForm{
+max-width: 300px;
+
+}
+
 input[type="text"] {
     width: 80%;
     padding: 8px;
