@@ -29,6 +29,9 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 
+
+
+
 app.get("/register", (req, res) =>{
     res.render("register");
 });
@@ -57,9 +60,20 @@ app.post("/register", async (req, res) => {
 
     user.save();
 
-    });
-    
+    res.redirect("/login");
+
+    if(err){
+        console.error("Error while hashing password:", err);
+        res.status(500).send("Internal Server Error");
+        return;
+    }
+
+    }); 
 }); 
+
+app.get('/login', (req, res) =>{
+    res.render("login");
+});
 
 
 app.listen(PORT, () => {
