@@ -4,6 +4,10 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const Student = require("./student.js");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+
+const secretKey = 'your_secret_key';
 
 const app = express();
 const PORT = 3000;
@@ -27,7 +31,7 @@ app.use(express.static("public/css"));
 app.use(express.static("public/images"));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
-
+app.use(cookieParser());
 
 
 
@@ -71,8 +75,48 @@ app.post("/register", async (req, res) => {
     }); 
 }); 
 
-app.get('/login', (req, res) =>{
+app.get("/login", (req, res) =>{
     res.render("login");
+});
+
+app.get("/", (req, res) =>{
+    res.render("home");
+})
+
+app.post("/login", async (req, res) =>{
+    //shorthand 
+    const {email, password} = req.body;
+
+    //Find user in the database by email
+    const user = await Student.findOne({email});
+
+    if(!user){
+        //user is not found
+    res.status(401).send('Invalid username or password.');
+    return;
+    }
+
+
+    //Create a sign a JSON web token
+    const unique = user._id.toString();
+
+    const token = jwt.sign(unique, secretKey);
+
+    //Set the token as a cookie
+    res.cookie('jwt', token, {maxAge: 5 * 60 * 1000, httpOnly: true});
+
+
+
+    bcrypt.compare(password, user.password, (err, result) =>{
+        if(result){
+            //Passwords do match & successful
+            res.redirect("/");
+        } else if (!result){
+            res.status(401).send('Invalid username or password.');
+        } else {
+            res.status(500).send('Internal Server Error:', err);
+        }
+    });
 });
 
 
