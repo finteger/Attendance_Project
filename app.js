@@ -12,7 +12,7 @@ const secretKey = 'your_secret_key';
 const app = express();
 const PORT = 3000;
 
-const url = `mongodb+srv://ToddN:Password123@cluster0.5x5qoad.mongodb.net/`;
+const url = `mongodb+srv://YourUsername:YourPassword@cluster0.5x5qoad.mongodb.net/`;
 
 mongoose.connect(url)
     .then(() => {
