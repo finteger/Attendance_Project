@@ -12,7 +12,7 @@ const secretKey = 'your_secret_key';
 const app = express();
 const PORT = 3000;
 
-const url = `mongodb+srv://YourUsername:YourPassword@cluster0.5x5qoad.mongodb.net/`;
+const url = `mongodb+srv://ToddN:Password123@cluster0.5x5qoad.mongodb.net/`;
 
 mongoose.connect(url)
     .then(() => {
@@ -34,6 +34,27 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 
+function authenticateToken(req, res, next){
+
+    const token = req.cookies.jwt;
+
+    if(token) {
+        jwt.verify(token, secretKey, (err, decoded) =>{
+            if(err) {
+                res.status(401).send('Invalid Token');
+            }
+          //req.userId = decoded;
+        });
+       next();
+    } else {
+    res.status(401).send('You are not authorized to access this page.');
+    }
+ }   
+
+
+app.get("/", authenticateToken,  (req, res) =>{
+    res.render("home");
+});
 
 
 app.get("/register", (req, res) =>{
@@ -79,9 +100,6 @@ app.get("/login", (req, res) =>{
     res.render("login");
 });
 
-app.get("/", (req, res) =>{
-    res.render("home");
-})
 
 app.post("/login", async (req, res) =>{
     //shorthand 
@@ -118,6 +136,13 @@ app.post("/login", async (req, res) =>{
         }
     });
 });
+
+app.post('/logout', (req, res) => {
+    res.clearCookie('jwt');
+
+    res.redirect("/login");
+});
+
 
 
 app.listen(PORT, () => {
