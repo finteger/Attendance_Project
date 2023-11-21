@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const Student = require("./student.js");
+const Record = require("./record.js");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 
@@ -52,8 +53,20 @@ function authenticateToken(req, res, next){
  }   
 
 
-app.get("/", authenticateToken,  (req, res) =>{
-    res.render("home");
+app.get("/", authenticateToken, async (req, res) =>{
+    
+    try{
+    const students = await Record.find({});
+    /* ellipsis or "spread operator", '...' used for spreading the students
+       array individually for the Math.max function */
+    const maxAttendanceCount = Math.max(...students.map(r => r.attendanceCount));
+
+    res.render("home", {students, maxAttendanceCount});
+
+    } catch(error){
+        res.status(500).send("Internal Server Error.", error);
+    }
+
 });
 
 

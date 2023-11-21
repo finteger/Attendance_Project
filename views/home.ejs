@@ -38,7 +38,8 @@
            <% students.forEach((record) => { %>
              <tr>
                 <% if(record.attendanceCount < maxAttendanceCount) { %>
-                    <td><%= record.name %> <i class="fa-solid fa-triangle-exclamation" style="color:red; font-size:8px;padding:5px;">&nbsp;Falling Behind</i>
+                    <td><%= record.name %> 
+                      <i class="fa-solid fa-triangle-exclamation" style="color:red; font-size:8px;padding:5px;">&nbsp;Falling Behind</i>
                     <% sendEmail() %>  
                 <% } else { %>
                     <td><%= record.name %></td>
