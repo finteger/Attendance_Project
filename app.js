@@ -101,7 +101,7 @@ app.post("/register", async (req, res) => {
     res.redirect("/login");
 
     if(err){
-        console.error("Error while hashing password:", err);
+        console.error("Error while hashing password:", finderr);
         res.status(500).send("Internal Server Error");
         return;
     }
@@ -117,7 +117,7 @@ app.get("/login", (req, res) =>{
 app.post("/login", async (req, res) =>{
     //shorthand 
     const {email, password} = req.body;
-
+    
     //Find user in the database by email
     const user = await Student.findOne({email});
 
@@ -154,6 +154,64 @@ app.post('/logout', (req, res) => {
     res.clearCookie('jwt');
 
     res.redirect("/login");
+});
+
+app.post("/addstudent", async (req, res) => {
+    try{
+        const student = new Record({
+            name: req.body.name,
+            email: req.body.email,
+        });
+        student.save();
+
+        res.redirect("/");
+    }catch(error){
+
+        res.status(500).send("Internal Server Error", error);
+    }
+});
+
+app.post("/deletestudent", async (req, res) => {
+
+    try{
+    const studentName = req.body.name;
+    const result = await Record.deleteOne({name: studentName});
+
+    } catch(error){
+
+        res.status(500).send("Internal Server Error", error);
+    }
+    
+});
+
+
+app.post("/updatestudent", async (req, res) =>{
+
+    const attendanceDate = req.body;
+    const length = req.body.attendance ? req.body.attendance.length : 0;
+
+    try{
+
+        for(let i = 0; i < length; i++){
+            const studentId = req.body.attendance[i];
+            const result = await Record.findByIdAndUpdate(
+                studentId,
+                {
+                 $inc: {attendanceCount: 1},
+                 $set: {attendeDate: new Date(attendanceDate)}   
+                },
+                {new: true},
+            );
+        }
+
+        res.redirect("/");
+
+    } catch (error){
+
+        res.status(500).send("An error occurred updating student record.", error);
+
+    }
+
 });
 
 

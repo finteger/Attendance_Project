@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 
 const recordSchema = new mongoose.Schema({
+    name: {type: String, require: true},
     email: {type: String, required: true},
-    password: {type: String, require: true},
     attendanceCount: {type: Number, default: 0},
     attendanceDate: {type: Date, required: false},
     absentCount: {type: Number, default: 0}

@@ -40,7 +40,7 @@
                 <% if(record.attendanceCount < maxAttendanceCount) { %>
                     <td><%= record.name %> 
                       <i class="fa-solid fa-triangle-exclamation" style="color:red; font-size:8px;padding:5px;">&nbsp;Falling Behind</i>
-                    <% sendEmail() %>  
+                 
                 <% } else { %>
                     <td><%= record.name %></td>
                 <% } %>
@@ -160,10 +160,10 @@ document.addEventListener('DOMContentLoaded', function(){
     const percentages = studentsData.map(student => (student.attendanceCount / sumAttendanceCount) * 100 );
 
   
-    
+  
     //Create labels and data arrays
     const labels = studentsData.map(s => (s.attendanceDate ? `${s.name} - ${new Date(s.attendanceDate).toLocaleDateString()}`: ""));
-
+    console.log(labels);
 
     const data = percentages;
 
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
       {
 
-        type: 'pie', // Change to 'bar' chart type
+        type: 'bar', // Change to 'bar' chart type
 
         data: {
 
