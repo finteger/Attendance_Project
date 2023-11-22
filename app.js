@@ -7,6 +7,9 @@ const Student = require("./student.js");
 const Record = require("./record.js");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const swaggerui = require("swagger-ui-express");
+const swaggerjsdoc = require("swagger-jsdoc");
+const swaggerdocs = require("./swagger.js");
 
 const secretKey = 'your_secret_key';
 
@@ -26,6 +29,16 @@ mongoose.connect(url)
 
 app.set("views", "./views");
 app.set("view engine", "ejs");
+
+
+const specs = swaggerjsdoc();
+
+app.use(
+"/api/docs",
+swaggerui.serve,
+swaggerui.setup(specs, {explorer: true})
+);
+
 
 app.use(express.static("public"));
 app.use(express.static("public/css"));
