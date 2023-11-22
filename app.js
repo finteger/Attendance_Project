@@ -30,8 +30,30 @@ mongoose.connect(url)
 app.set("views", "./views");
 app.set("view engine", "ejs");
 
+const options = {
 
-const specs = swaggerjsdoc();
+definition: {
+        openapi: "3.1.0",
+        info: {
+            title: "Attendance Project",
+            version: "1.0.0",
+            description: 
+            "Api documentation for the attendance project",
+            license: {
+                name: "License: MIT",
+                url: "https://spdx.org/licenses/MIT.html",
+                    },
+                },
+                servers: [
+                    {
+                    url: "https://localhost:3000",
+                    }
+              ]
+        },
+    apis: ["./*.js"]
+};
+
+const specs = swaggerjsdoc(options);
 
 app.use(
 "/api/docs",
@@ -65,8 +87,8 @@ function authenticateToken(req, res, next){
     }
  }   
 
-
-app.get("/", authenticateToken, async (req, res) =>{
+//authenticateToken middleware
+app.get("/",  async (req, res) =>{
     
     try{
     const students = await Record.find({});
@@ -227,6 +249,32 @@ app.post("/updatestudent", async (req, res) =>{
 
 });
 
+app.get("/api/records", async (req, res) =>{
+
+    try{
+       const records = await Record.find().exec(); 
+       res.json(records);
+
+    }catch(error){
+        res.status(500).send({error: 'An error occured while fetching records.'});
+    }
+});
+
+app.post("/api/addstudent", async (req, res) =>{
+
+    try{
+        const student = new Record({
+            name: req.body.name,
+            email: req.body.email,
+        });
+        await student.save();
+
+        res.status(200).json({message: 'Student added successfully', student: student});
+    }catch(error){
+        res.status(500).send("Internal Server Error", error);
+    }
+
+});
 
 
 app.listen(PORT, () => {

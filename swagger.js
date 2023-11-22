@@ -26,13 +26,7 @@
 
  *      application/json:
 
- *       schema:
-
- *        type: array
-
- *        items:
-
- *         $ref: '#/components/schemas/StudentRecord'
+ *       
 
  * /api/addstudent:
 
@@ -75,18 +69,6 @@
  *    201:
 
  *     description: Student created successfully
-
- *     content:
-
- *      application/json:
-
- *       schema:
-
- *        $ref: '#/components/schemas/StudentRecord'
-
- *    400:
-
- *     description: Bad request - missing or invalid data
 
  */
 
