@@ -10,6 +10,9 @@ const cookieParser = require("cookie-parser");
 const swaggerui = require("swagger-ui-express");
 const swaggerjsdoc = require("swagger-jsdoc");
 const swaggerdocs = require("./swagger.js");
+const rateLimit = require("express-rate-limit");
+const morgan = require("morgan");
+const fs = require('fs');
 
 const secretKey = 'your_secret_key';
 
@@ -29,6 +32,27 @@ mongoose.connect(url)
 
 app.set("views", "./views");
 app.set("view engine", "ejs");
+
+
+const apiLimiter = rateLimit({
+windowsMS: 1 * 60 * 1000, //15 Minutes
+max: 15,
+standardHeaders: true,
+legacyHeaders: false,
+});
+
+const morganJSONFormat = () => JSON.stringify({
+    method: ':method',
+    url: ':url',
+    http_version: ':http-version',
+    remote_addr: ':remote-addr',
+    response_time: ':response-time ms',
+    status: ':status',
+    content_length: 'res[content-length]',
+    timestamp: ':date[iso]',
+    user_agent: ':user-agent',
+});
+
 
 const options = {
 
@@ -61,14 +85,12 @@ swaggerui.serve,
 swaggerui.setup(specs, {explorer: true})
 );
 
-
 app.use(express.static("public"));
 app.use(express.static("public/css"));
 app.use(express.static("public/images"));
 app.use(express.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
 
 function authenticateToken(req, res, next){
 
@@ -87,8 +109,8 @@ function authenticateToken(req, res, next){
     }
  }   
 
-//authenticateToken middleware
-app.get("/",  async (req, res) =>{
+
+app.get("/", authenticateToken,  async (req, res) =>{
     
     try{
     const students = await Record.find({});
@@ -246,10 +268,27 @@ app.post("/updatestudent", async (req, res) =>{
         res.status(500).send("An error occurred updating student record.", error);
 
     }
-
 });
 
-app.get("/api/records", async (req, res) =>{
+app.post("/reset", async (req, res) =>{
+
+    try{
+        const students = await Record.find({});
+
+        for (let i = 0; i < students.length; i++){
+            students[i].attendanceCount = 0;
+            await students[i].save();
+        }
+
+       res.redirect("/"); 
+
+    }catch(error){
+        res.status(500).send("Internal Server Error", error);
+    }
+});
+
+
+app.get("/api/records", authenticateToken, apiLimiter, async (req, res) =>{
 
     try{
        const records = await Record.find().exec(); 
@@ -260,7 +299,7 @@ app.get("/api/records", async (req, res) =>{
     }
 });
 
-app.post("/api/addstudent", async (req, res) =>{
+app.post("/api/addstudent", authenticateToken, apiLimiter,  async (req, res) =>{
 
     try{
         const student = new Record({
