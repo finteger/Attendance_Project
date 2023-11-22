@@ -13,6 +13,7 @@ const swaggerdocs = require("./swagger.js");
 const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 const fs = require('fs');
+const path = require("path");
 
 const secretKey = 'your_secret_key';
 
@@ -53,6 +54,11 @@ const morganJSONFormat = () => JSON.stringify({
     user_agent: ':user-agent',
 });
 
+const logFilePath = path.join(__dirname, 'access.log');
+
+const accessLogStream = fs.createWriteStream(logFilePath, {flags: 'a'});
+
+
 
 const options = {
 
@@ -85,6 +91,7 @@ swaggerui.serve,
 swaggerui.setup(specs, {explorer: true})
 );
 
+app.use(morgan(morganJSONFormat(), {stream: accessLogStream}))
 app.use(express.static("public"));
 app.use(express.static("public/css"));
 app.use(express.static("public/images"));
@@ -288,7 +295,7 @@ app.post("/reset", async (req, res) =>{
 });
 
 
-app.get("/api/records", authenticateToken, apiLimiter, async (req, res) =>{
+app.get("/api/records",  apiLimiter, async (req, res) =>{
 
     try{
        const records = await Record.find().exec(); 
@@ -299,7 +306,7 @@ app.get("/api/records", authenticateToken, apiLimiter, async (req, res) =>{
     }
 });
 
-app.post("/api/addstudent", authenticateToken, apiLimiter,  async (req, res) =>{
+app.post("/api/addstudent", apiLimiter,  async (req, res) =>{
 
     try{
         const student = new Record({
