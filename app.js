@@ -187,7 +187,7 @@ app.post("/deletestudent", async (req, res) => {
 
 app.post("/updatestudent", async (req, res) =>{
 
-    const attendanceDate = req.body;
+    const attendanceDate = req.body.attendanceDate;
     const length = req.body.attendance ? req.body.attendance.length : 0;
 
     try{
@@ -198,7 +198,7 @@ app.post("/updatestudent", async (req, res) =>{
                 studentId,
                 {
                  $inc: {attendanceCount: 1},
-                 $set: {attendeDate: new Date(attendanceDate)}   
+                 $set: {attendanceDate: new Date(attendanceDate)}   
                 },
                 {new: true},
             );
